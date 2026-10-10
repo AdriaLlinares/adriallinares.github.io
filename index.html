@@ -1533,7 +1533,8 @@ const wuView   = document.getElementById("view-writeup");
 function getMarkdown(slug){ const w=WRITEUPS.find(x=>x.slug===slug); return w ? (w.md||"") : null; }
 const STATE = { q:"", plat:"", diff:"", os:"", status:"" };
 let SORT="", REV=false; try{ const ls=localStorage.getItem("rootlog:sort"); if(ls==="diff"||ls==="date") SORT=ls; REV=!!SORT&&localStorage.getItem("rootlog:rev")==="1"; }catch(e){}
-const DIFF_ORDER=["facil","media","dificil","insane"], DIFF_LABEL={facil:"Fácil",media:"Media",dificil:"Difícil",insane:"Insane"};
+const DIFF_ORDER=["facil","media","dificil","insane"], DIFF_LABEL={facil:"Easy",media:"Medium",dificil:"Hard",insane:"Insane"};
+const dLabel=d=>DIFF_LABEL[norm(d)]||d, DIFF_KEY={easy:"facil",medium:"media",hard:"dificil",insane:"insane"};
 function buildStats(){
   const d=WRITEUPS, rooted=d.filter(x=>x.status==="rooted").length, by=p=>d.filter(x=>x.platform===p).length;
   const s=[["total",d.length,false],["rooteadas",rooted,true],["HTB",by("HTB"),false],["THM",by("THM"),false],["VulnHub",by("VulnHub"),false]];
@@ -1552,7 +1553,7 @@ function matches(w){
   if(STATE.diff&&w.difficulty!==STATE.diff)return false;
   if(STATE.os&&w.os!==STATE.os)return false;
   if(STATE.status&&w.status!==STATE.status)return false;
-  if(STATE.q){const hay=norm([w.title,w.platform,w.os,w.difficulty,w.summary,(w.tags||[]).join(" ")].join(" "));return norm(STATE.q).split(/\s+/).every(t=>hay.includes(t));}
+  if(STATE.q){const hay=norm([w.title,w.platform,w.os,w.difficulty,dLabel(w.difficulty),w.summary,(w.tags||[]).join(" ")].join(" "));return norm(STATE.q).split(/\s+/).every(t=>hay.includes(t));}
   return true;
 }
 function card(w){
@@ -1564,7 +1565,7 @@ function card(w){
   return '<a class="card" href="#'+encodeURIComponent(w.slug)+'" style="--edge:'+(EDGE[w.platform]||"var(--cyan)")+'">'
     +'<div class="c-top"><span class="plat '+w.platform+'">'+w.platform+'</span><span class="status '+w.status+'">'+(STATUS_LABEL[w.status]||w.status)+'</span></div>'
     +'<div class="c-name">'+esc(w.title)+'</div>'
-    +'<div class="c-meta"><span class="diff" style="color:'+(DIFFCOLOR[dk]||"var(--text)")+'">'+esc(w.difficulty)+'</span><span class="sep">·</span><span>'+esc(w.os)+'</span>'+(w.ip?'<span class="sep">·</span><span>'+esc(w.ip)+'</span>':"")+'</div>'
+    +'<div class="c-meta"><span class="diff" style="color:'+(DIFFCOLOR[dk]||"var(--text)")+'">'+esc(dLabel(w.difficulty))+'</span><span class="sep">·</span><span>'+esc(w.os)+'</span>'+(w.ip?'<span class="sep">·</span><span>'+esc(w.ip)+'</span>':"")+'</div>'
     +'<p class="c-sum">'+esc(w.summary||"")+'</p>'
     +'<div class="chain">'+steps+'</div><div class="chain-lbl">'+lbls+'</div>'
     +'<div class="tags">'+tags+'</div></a>';
@@ -1606,7 +1607,7 @@ function renderWriteup(slug){
   document.title=m.title+" — writeup";
   const done=CHAIN_DONE[m.status]||0;
   const chain=CHAIN.map((c,i)=>'<div class="cstep '+(i<done?"done":"")+'"><div class="cs-n">0'+(i+1)+'</div><div class="cs-l">'+c+'</div></div>').join("");
-  const cells=[["SO",m.os],["Dificultad",m.difficulty],["IP",m.ip||"—"],["Fecha",m.date||"—"]].map(kv=>{const st=kv[0]==="Dificultad"?' style="color:'+(DIFFCOLOR[norm(kv[1])]||"var(--text)")+'"':"";return '<div class="mcell"><div class="k">'+kv[0]+'</div><div class="v"'+st+'>'+esc(kv[1])+'</div></div>';}).join("");
+  const cells=[["SO",m.os],["Dificultad",dLabel(m.difficulty)],["IP",m.ip||"—"],["Fecha",m.date||"—"]].map(kv=>{const st=kv[0]==="Dificultad"?' style="color:'+(DIFFCOLOR[DIFF_KEY[norm(kv[1])]||norm(kv[1])]||"var(--text)")+'"':"";return '<div class="mcell"><div class="k">'+kv[0]+'</div><div class="v"'+st+'>'+esc(kv[1])+'</div></div>';}).join("");
   const tags=(m.tags||[]).map(t=>'<span class="wu-tag">#'+esc(t)+'</span>').join("");
   marked.setOptions({breaks:false,gfm:true});
   let body;
@@ -1631,7 +1632,7 @@ function router(){
 function openLightbox(src){ if(!src)return; document.getElementById("lightbox-img").src=src; document.getElementById("lightbox").hidden=false; }
 function closeLightbox(){ document.getElementById("lightbox").hidden=true; document.getElementById("lightbox-img").src=""; }
 buildStats();
-const SORT_TXT={date:["Recientes","Más recientes primero","Más antiguas primero"],diff:["Dificultad","De Fácil a Insane","De Insane a Fácil"]};
+const SORT_TXT={date:["Recientes","Más recientes primero","Más antiguas primero"],diff:["Dificultad","De Easy a Insane","De Insane a Easy"]};
 function paintSorts(){document.querySelectorAll(".sorts button").forEach(b=>{const on=b.dataset.s===SORT,t=SORT_TXT[b.dataset.s];b.classList.toggle("on",on);b.innerHTML=t[0]+(on?'<span class="arr">'+(REV?"↑":"↓")+'</span>':"");b.title=on?t[REV?2:1]+(REV?" (clic para quitar el orden)":" (clic para invertir)"):t[1];});}
 document.querySelectorAll(".sorts button").forEach(b=>b.addEventListener("click",()=>{if(SORT!==b.dataset.s){SORT=b.dataset.s;REV=false;}else if(!REV)REV=true;else{SORT="";REV=false;}try{localStorage.setItem("rootlog:sort",SORT);localStorage.setItem("rootlog:rev",REV?"1":"0");}catch(e){}paintSorts();renderGrid();}));
 paintSorts();
