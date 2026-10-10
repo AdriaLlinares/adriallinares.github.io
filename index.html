@@ -182,7 +182,7 @@ footer.doc a:hover{color:var(--text)}
 /* ---- footer ---- */
 #view-list > main{min-height:calc(100vh - 300px)}
 footer.site{font-size:.9rem; color:var(--dim); border-top:1px solid var(--border); padding-top:40px}
-.f-top{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:28px 80px; align-items:start; padding:28px 0 40px}
+.f-top{display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:28px 72px; align-items:start; padding:28px 0 40px}
 .f-mark{font-size:clamp(3.5rem,10vw,11rem); font-weight:700; letter-spacing:-.07em; line-height:.9; margin:0 0 0 -.04em; padding-bottom:.2em; white-space:nowrap; overflow:hidden; color:transparent; background:linear-gradient(180deg,var(--border-lit),color-mix(in srgb,var(--border) 25%,transparent)); -webkit-background-clip:text; background-clip:text; user-select:none}
 .f-mark span{opacity:.5}
 .f-about p{max-width:52ch; line-height:1.65; font-size:1rem}
@@ -193,7 +193,11 @@ footer.site{font-size:.9rem; color:var(--dim); border-top:1px solid var(--border
 .f-col a:hover,.f-bottom a:hover{color:var(--cyan)}
 .f-bottom{display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px 24px; padding:18px 0 32px; border-top:1px solid var(--border); font-size:.8rem; color:var(--faint-c)}
 .f-bottom a{color:var(--dim)}
-@media (max-width:720px){.f-top{grid-template-columns:1fr}}
+.f-certs{gap:12px}
+.f-certs a{display:flex; flex-direction:column; line-height:1.3}
+.f-certs small{font-size:.76rem; color:var(--faint-c); margin-top:2px}
+@media (max-width:900px){.f-top{grid-template-columns:1fr 1fr}.f-about{grid-column:1/-1}}
+@media (max-width:520px){.f-top{grid-template-columns:1fr}}
 
 /* ---- barra de lectura, copiar, índice ---- */
 #read-bar{position:fixed; top:0; left:0; height:2px; width:0; background:var(--text); z-index:200; transition:width .08s linear}
@@ -250,6 +254,13 @@ article pre:hover .copy-btn{opacity:1}
         <div class="f-h">Contacto</div>
         <a href="https://www.linkedin.com/in/adriallinaresarroyo" target="_blank" rel="noopener">LinkedIn ↗</a>
         <a href="https://github.com/AdriaLlinares" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="mailto:adriallinaresarroyo@gmail.com" title="adriallinaresarroyo@gmail.com">Email ↗</a>
+      </nav>
+      <nav class="f-col f-certs" aria-label="Certificaciones">
+        <div class="f-h">Certificaciones</div>
+        <a href="https://certs.ine.com/a2c927a2-443c-4b20-9c7a-49460e28d562#acc.DMdROPgU" target="_blank" rel="noopener" title="Ver credencial verificada">eJPT ↗<small>INE Security · 2026</small></a>
+        <a href="https://hack4u.io/certificate/6368-0493-1530-3281" target="_blank" rel="noopener" title="Ver credencial verificada">Python Ofensivo ↗<small>Hack4u · 2026</small></a>
+        <a href="https://hack4u.io/certificate/8428-3305-9349-9273" target="_blank" rel="noopener" title="Ver credencial verificada">Introducción al Hacking ↗<small>Hack4u · 2026</small></a>
       </nav>
     </div>
     <div class="f-bottom"><span><span id="fyear"></span> Adrià Llinares Arroyo</span><a href="#" id="f-up">Volver arriba ↑</a></div>
