@@ -272,7 +272,7 @@ article pre:hover .copy-btn{opacity:1}
     </div>
     <div class="count-row"><div class="count" id="count"></div><div class="ctl"><div class="sorts" role="group" aria-label="Orden"><button type="button" data-s="date">Recientes</button><button type="button" data-s="diff">Dificultad</button></div><div class="views" role="group" aria-label="Vista"><button type="button" data-v="list">Lista</button><button type="button" data-v="graph">Grafo</button></div></div></div>
     <div class="grid" id="grid"></div>
-    <div class="graph" id="graph" hidden><canvas id="graph-cv" aria-label="Grafo de máquinas y técnicas"></canvas><div class="graph-hint">línea discontinua = comparten técnica · arrastra para mover · rueda para zoom · clic para abrir</div></div>
+    <div class="graph" id="graph" hidden><canvas id="graph-cv" aria-label="Grafo de máquinas y técnicas"></canvas><div class="graph-hint">arrastra para mover · rueda para zoom · clic para abrir</div></div>
   </main>
   <footer class="site wrap">
     <div class="f-mark" aria-hidden="true">rootlog<span>_</span></div>
@@ -1573,7 +1573,7 @@ const listView = document.getElementById("view-list");
 const wuView   = document.getElementById("view-writeup");
 function getMarkdown(slug){ const w=WRITEUPS.find(x=>x.slug===slug); return w ? (w.md||"") : null; }
 const STATE = { q:"", plat:"", diff:"", os:"", status:"" };
-let SORT="", REV=false; try{ const ls=localStorage.getItem("rootlog:sort"); if(ls==="diff"||ls==="date") SORT=ls; REV=!!SORT&&localStorage.getItem("rootlog:rev")==="1"; }catch(e){}
+let SORT="diff", REV=false; /* por defecto: dificultad, de Insane a Easy */
 const DIFF_ORDER=["facil","media","dificil","insane"], DIFF_LABEL={facil:"Easy",media:"Medium",dificil:"Hard",insane:"Insane"};
 const dLabel=d=>DIFF_LABEL[norm(d)]||d, DIFF_KEY={easy:"facil",medium:"media",hard:"dificil",insane:"insane"};
 function buildStats(){
@@ -1631,7 +1631,7 @@ function renderGrid(){
   else cnt.textContent=PLATS.length+" carpetas · "+plural(WRITEUPS.length,"máquina");
   if(atRoot){grid.innerHTML=folders();return;}
   if(!list.length){const vac=STATE.plat&&!WRITEUPS.some(w=>w.platform===STATE.plat);grid.innerHTML='<div class="empty"><h3>'+(vac?"Carpeta vacía":"Sin resultados")+'</h3><p>'+(vac?"Todavía no hay máquinas de "+STATE.plat+".":"Ninguna máquina coincide con el filtro.")+'</p></div>';return;}
-  if(SORT==="diff"){const g={},ord=REV?DIFF_ORDER.slice().reverse():DIFF_ORDER;
+  if(SORT==="diff"){const g={},ord=REV?DIFF_ORDER:DIFF_ORDER.slice().reverse();
     list.forEach(w=>{const k=DIFF_ORDER.includes(norm(w.difficulty))?norm(w.difficulty):"otra";(g[k]=g[k]||[]).push(w);});
     grid.innerHTML=ord.concat("otra").filter(k=>g[k]).map(k=>'<div class="dgroup" style="--dc:'+(DIFFCOLOR[k]||"var(--dim)")+'"><span>'+(DIFF_LABEL[k]||"Otra")+'</span><span class="dn">'+g[k].length+'</span></div>'+g[k].map(card).join("")).join("");}
   else grid.innerHTML=(REV?list.slice().reverse():list).map(card).join("");
@@ -1666,6 +1666,7 @@ function router(){
   if(slug&&getMarkdown(slug)!==null){listView.hidden=true;wuView.hidden=false;renderWriteup(slug);window.scrollTo(0,0);}
   else{const f=FOLDER[slug.toLowerCase()]||"";
     if(!f){STATE.diff=STATE.os=STATE.status="";document.querySelectorAll(".chip.on").forEach(c=>c.classList.remove("on"));}
+    if(f!==STATE.plat){SORT="diff";REV=false;if(typeof paintSorts==="function")paintSorts();}
     STATE.plat=f;renderGrid();
     document.getElementById("brand").textContent="~/rootlog"+(f?"/"+f.toLowerCase():"");
     wuView.hidden=true;listView.hidden=false;document.title=f?f+" — rootlog":"rootlog — writeups";window.scrollTo(0,0);}
@@ -1673,9 +1674,9 @@ function router(){
 function openLightbox(src){ if(!src)return; document.getElementById("lightbox-img").src=src; document.getElementById("lightbox").hidden=false; }
 function closeLightbox(){ document.getElementById("lightbox").hidden=true; document.getElementById("lightbox-img").src=""; }
 buildStats();
-const SORT_TXT={date:["Recientes","Más recientes primero","Más antiguas primero"],diff:["Dificultad","De Easy a Insane","De Insane a Easy"]};
-function paintSorts(){document.querySelectorAll(".sorts button").forEach(b=>{const on=b.dataset.s===SORT,t=SORT_TXT[b.dataset.s];b.classList.toggle("on",on);b.innerHTML=t[0]+(on?'<span class="arr">'+(REV?"↑":"↓")+'</span>':"");b.title=on?t[REV?2:1]+(REV?" (clic para quitar el orden)":" (clic para invertir)"):t[1];});}
-document.querySelectorAll(".sorts button").forEach(b=>b.addEventListener("click",()=>{if(SORT!==b.dataset.s){SORT=b.dataset.s;REV=false;}else if(!REV)REV=true;else{SORT="";REV=false;}try{localStorage.setItem("rootlog:sort",SORT);localStorage.setItem("rootlog:rev",REV?"1":"0");}catch(e){}paintSorts();renderGrid();}));
+const SORT_TXT={date:["Recientes","Más recientes primero","Más antiguas primero"],diff:["Dificultad","De Insane a Easy","De Easy a Insane"]};
+function paintSorts(){document.querySelectorAll(".sorts button").forEach(b=>{const on=b.dataset.s===SORT,t=SORT_TXT[b.dataset.s];b.classList.toggle("on",on);b.innerHTML=t[0]+(on?'<span class="arr">'+(REV?"↑":"↓")+'</span>':"");b.title=on?t[REV?2:1]+(REV?" (clic para volver al orden por defecto)":" (clic para invertir)"):t[1];});}
+document.querySelectorAll(".sorts button").forEach(b=>b.addEventListener("click",()=>{if(SORT!==b.dataset.s){SORT=b.dataset.s;REV=false;}else if(!REV)REV=true;else{SORT="diff";REV=false;}paintSorts();renderGrid();}));
 paintSorts();
 renderGrid();
 document.getElementById("q").addEventListener("input",e=>{STATE.q=e.target.value;renderGrid();});
@@ -1942,11 +1943,8 @@ ${i}
     var root=add("root",{type:"root",label:"rootlog",r:10}); root.x=root.y=0;
     list.forEach(function(w){
       var p=add("p:"+w.platform,{type:"plat",label:w.platform,r:8,col:PCOL[w.platform]},root); link(root,p);
-      var m=add("m:"+w.slug,{type:"machine",label:w.title,r:6.5,slug:w.slug,col:PCOL[w.platform]},p); link(p,m);
-      m.keys={}; (w.tags||[]).forEach(function(t){ m.keys[norm(t).replace(/[\s_]+/g,"-")]=1; });
+      var m=add("m:"+w.slug,{type:"machine",label:w.title,r:6.5,slug:w.slug,col:PCOL[w.platform],plat:w.platform},p); link(p,m);
     });
-    var ms=nodes.filter(function(n){ return n.type==="machine"; });
-    ms.forEach(function(a,i){ ms.slice(i+1).forEach(function(b){ for(var k in a.keys) if(b.keys[k]){ link(a,b); links[links.length-1].shared=true; break; } }); });
     if(keep){ alpha=Math.max(alpha,.5); } else { alpha=1; for(var i=0;i<260;i++) tick(); fit(); }
   }
   function tick(){
@@ -1972,7 +1970,7 @@ ${i}
     var nb=hover?adj[hover.id]:null;
     ctx.lineWidth=1/cam.k;
     links.forEach(function(l){ var on=hover&&(l.s===hover||l.t===hover);
-      ctx.globalAlpha=hover?(on?.9:.12):.55; ctx.strokeStyle=on?C.cyan:C["border-lit"]; ctx.setLineDash(l.shared?[4/cam.k,4/cam.k]:[]);
+      ctx.globalAlpha=hover?(on?.9:.12):.55; ctx.strokeStyle=on?C.cyan:C["border-lit"]; ctx.lineWidth=(l.shared?.6:1)/cam.k;
       ctx.beginPath(); ctx.moveTo(l.s.x,l.s.y); ctx.lineTo(l.t.x,l.t.y); ctx.stroke(); });
     nodes.forEach(function(n){ var lit=!hover||n===hover||nb[n.id];
       ctx.globalAlpha=lit?1:.18;
