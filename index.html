@@ -241,6 +241,17 @@ article pre:hover .copy-btn{opacity:1}
 .lk-btns{display:flex; gap:8px; flex-wrap:wrap}
 .lk-preview{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; justify-content:center; margin:-6px 0 24px; font-size:.86rem; color:var(--dim)}
 .lk-test-out{flex-basis:100%; font-family:var(--mono); font-size:.78rem; color:var(--dim); line-height:1.7}
+
+/* ---- insignia de perfil en cada carpeta ---- */
+.profile{display:flex; flex-wrap:wrap; align-items:center; gap:12px 24px; margin:28px 0 0}
+.profile iframe{display:block; border:0; max-width:100%; border-radius:10px; color-scheme:light}
+.profile .p-card{display:flex; align-items:center; gap:14px; padding:14px 18px 14px 14px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:inherit; text-decoration:none; transition:border-color .15s}
+.profile .p-card:hover{border-color:var(--border-lit)}
+.profile .p-card img{width:56px; height:56px; border-radius:50%; object-fit:cover; background:var(--surface-2); flex:none}
+.profile .p-card b{display:block; font-weight:600; color:var(--text)}
+.profile .p-h{display:block; font-family:var(--mono); font-size:.78rem; color:var(--pc); margin-top:2px}
+.profile .p-link{font-size:.88rem; color:var(--dim); text-decoration:none; transition:color .15s}
+.profile .p-link:hover{color:var(--text)}
 </style>
 </head>
 <body>
@@ -1875,6 +1886,38 @@ ${i}
   window.RootLock={encryptAt:encryptAt,encryptJSON:encryptJSON,decrypt:decrypt,decryptWhenReady:decryptWhenReady,left:left,fmt:fmt,fdate:fdate,lockAt:lockAt,pending:pending};
   WRITEUPS.forEach(function(w){ if(w.locked&&left(w.locked.at)<=0) unlock(w.slug); });
   router();
+})();
+</script>
+<script>
+/* Insignia de perfil de cada plataforma, dentro de su carpeta. Se usa el iframe oficial directamente (sin su script). */
+(function(){
+  var PROFILES={
+    HTB:{name:"Hack The Box", url:"https://profile.hackthebox.com/profile/019e9e7d-fc2d-700f-b9e4-794b6a43fd00", handle:"@Vesperinhoo", fullname:"Adria Llinares Arroyo", avatar:"https://htb-sso-prod-public-storage.s3.eu-central-1.amazonaws.com/users/d0b263f2-0b7b-49e9-bd91-4b6809799153-avatar.png"},
+    THM:{name:"TryHackMe", url:"https://tryhackme.com/p/adria.llinares", handle:"adria.llinares", fullname:"Adria Llinares Arroyo", avatar:"https://cdn-images.tryhackme.com/user-avatars/68d563b894172bc87b1b9bf4-1762188453338"}
+  };
+  function box(){
+    var b=document.getElementById("profile");
+    if(!b){ var row=document.querySelector(".count-row"); if(!row) return null; b=document.createElement("div"); b.id="profile"; b.className="profile"; b.hidden=true; row.parentNode.insertBefore(b,row); }
+    return b;
+  }
+  function upd(){
+    var b=box(); if(!b) return;
+    var p=STATE.plat&&PROFILES[STATE.plat];
+    if(!p){ b.hidden=true; b.innerHTML=""; b.dataset.plat=""; return; }
+    b.hidden=false;
+    if(b.dataset.plat===STATE.plat) return;
+    b.dataset.plat=STATE.plat;
+    if(!p.embed){
+      b.innerHTML='<a class="p-card" href="'+p.url+'" target="_blank" rel="noopener" style="--pc:'+(EDGE[STATE.plat]||"var(--dim)")+'"><img src="'+p.avatar+'" alt="" width="56" height="56" loading="lazy" referrerpolicy="no-referrer"><span><b>'+esc(p.fullname)+'</b><span class="p-h">'+esc(p.handle)+' · '+p.name+'</span></span></a>'
+        +'<a class="p-link" href="'+p.url+'" target="_blank" rel="noopener">Ver mi perfil en '+p.name+' ↗</a>';
+      return;
+    }
+    b.innerHTML='<iframe src="'+p.embed+'" width="'+p.w+'" height="'+p.h+'" style="width:'+p.w+'px;height:'+p.h+'px" title="Mi perfil en '+p.name+'" loading="lazy" scrolling="no" referrerpolicy="no-referrer"></iframe>'
+      +'<a class="p-link" href="'+p.url+'" target="_blank" rel="noopener">Ver mi perfil en '+p.name+' ↗</a>';
+  }
+  var base=renderGrid;
+  renderGrid=function(){ base.apply(this,arguments); upd(); };
+  upd();
 })();
 </script>
 <script>
