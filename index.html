@@ -1633,6 +1633,8 @@ function renderGrid(){
   if(!list.length){const vac=STATE.plat&&!WRITEUPS.some(w=>w.platform===STATE.plat);grid.innerHTML='<div class="empty"><h3>'+(vac?"Carpeta vacía":"Sin resultados")+'</h3><p>'+(vac?"Todavía no hay máquinas de "+STATE.plat+".":"Ninguna máquina coincide con el filtro.")+'</p></div>';return;}
   if(SORT==="diff"){const g={},ord=REV?DIFF_ORDER:DIFF_ORDER.slice().reverse();
     list.forEach(w=>{const k=DIFF_ORDER.includes(norm(w.difficulty))?norm(w.difficulty):"otra";(g[k]=g[k]||[]).push(w);});
+    const isLk=w=>!!(w.locked||(w.active&&w.unlock&&new Date(w.unlock).getTime()>Date.now()));
+    Object.keys(g).forEach(k=>g[k].sort((x,y)=>(isLk(x)-isLk(y))||x.title.localeCompare(y.title,"es",{sensitivity:"base",numeric:true})));
     grid.innerHTML=ord.concat("otra").filter(k=>g[k]).map(k=>'<div class="dgroup" style="--dc:'+(DIFFCOLOR[k]||"var(--dim)")+'"><span>'+(DIFF_LABEL[k]||"Otra")+'</span><span class="dn">'+g[k].length+'</span></div>'+g[k].map(card).join("")).join("");}
   else grid.innerHTML=(REV?list.slice().reverse():list).map(card).join("");
   grid.querySelectorAll(".card").forEach((el,i)=>el.style.animationDelay=Math.min(i*35,300)+"ms");
