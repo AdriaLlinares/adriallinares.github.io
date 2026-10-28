@@ -1818,7 +1818,7 @@ ${i}
       +'<h1 class="title">'+esc(w.title)+'</h1><div class="metabar">'+cells+'</div></header>'
       +'<div class="lockbox"><div class="lb-ico">'+LOCK_SVG+'</div><div class="lb-k">Máquina activa · writeup cifrado</div>'
       +'<div class="lb-cd cd" data-at="'+at+'"'+(preview?'':' data-slug="'+esc(w.slug)+'"')+'>'+(ms>0?fmt(ms):'desbloqueando…')+'</div>'
-      +'<p class="lb-s">Se publicará solo cuando '+who+' retire la máquina: <b>'+fdate(at)+'</b>. No hace falta recargar la página.</p></div>'
+      +'<p class="lb-s">Disponible el <b>'+fdate(at)+'</b>.</p></div>'
       +(preview?'<div class="lk-preview"><span>Vista previa: así lo ve la gente en tu web.</span><button type="button" class="btn tool" id="lk-back">Volver a mi vista</button></div>':'')
       +'<footer class="doc"><a href="#'+pl+'">← volver a '+w.platform+'</a></footer>';
     var bk=document.getElementById("wu-back"); if(bk){ bk.href="#"+pl; bk.textContent="← "+w.platform; }
