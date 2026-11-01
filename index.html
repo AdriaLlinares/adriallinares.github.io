@@ -1651,7 +1651,7 @@ function renderWriteup(slug){
   document.title=m.title+" — writeup";
   const done=CHAIN_DONE[m.status]||0;
   const chain=CHAIN.map((c,i)=>'<div class="cstep '+(i<done?"done":"")+'"><div class="cs-n">0'+(i+1)+'</div><div class="cs-l">'+c+'</div></div>').join("");
-  const cells=[["SO",m.os],["Dificultad",dLabel(m.difficulty)],["IP",m.ip||"—"],["Fecha",m.date||"—"]].map(kv=>{const st=kv[0]==="Dificultad"?' style="color:'+(DIFFCOLOR[DIFF_KEY[norm(kv[1])]||norm(kv[1])]||"var(--text)")+'"':"";return '<div class="mcell"><div class="k">'+kv[0]+'</div><div class="v"'+st+'>'+esc(kv[1])+'</div></div>';}).join("");
+  const cells=[["SO",m.os],["Dificultad",dLabel(m.difficulty)],["IP",m.ip||"—"],...(m.started&&m.started!==m.date?[["Empezada",m.started],["Acabada",m.date||"—"]]:[["Fecha",m.date||"—"]])].map(kv=>{const st=kv[0]==="Dificultad"?' style="color:'+(DIFFCOLOR[DIFF_KEY[norm(kv[1])]||norm(kv[1])]||"var(--text)")+'"':"";return '<div class="mcell"><div class="k">'+kv[0]+'</div><div class="v"'+st+'>'+esc(kv[1])+'</div></div>';}).join("");
   const tags=(m.tags||[]).map(t=>'<span class="wu-tag">#'+esc(t)+'</span>').join("");
   marked.setOptions({breaks:false,gfm:true});
   let body;
@@ -1810,7 +1810,7 @@ ${i}
   function lockedView(w,preview){
     var doc=document.getElementById("doc"), pl=w.platform.toLowerCase(), at=preview?lockAt(w):w.locked.at, ms=left(at);
     document.title=w.title+" — writeup";
-    var cells=[["SO",w.os],["Dificultad",dLabel(w.difficulty)],["IP",w.ip||"—"],["Fecha",w.date||"—"]].map(function(kv){
+    var cells=[["SO",w.os],["Dificultad",dLabel(w.difficulty)],["IP",w.ip||"—"],...(w.started&&w.started!==w.date?[["Empezada",w.started],["Acabada",w.date||"—"]]:[["Fecha",w.date||"—"]])].map(function(kv){
       var st=kv[0]==="Dificultad"?' style="color:'+(DIFFCOLOR[norm(w.difficulty)]||"var(--text)")+'"':"";
       return '<div class="mcell"><div class="k">'+kv[0]+'</div><div class="v"'+st+'>'+esc(kv[1])+'</div></div>';
     }).join("");
