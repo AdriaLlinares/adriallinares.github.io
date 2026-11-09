@@ -110,7 +110,7 @@ body.at-root .filters{display:none}
 .folder:focus-visible{outline:2px solid var(--cyan); outline-offset:3px}
 .fd-top{display:flex; justify-content:space-between; align-items:center; color:var(--pc); margin-bottom:26px}
 .fd-n{font-size:.8rem; color:var(--dim)}
-.fd-name{font-size:1.9rem; font-weight:600; letter-spacing:-.04em; line-height:1}
+.fd-name{font-size:1.6rem; font-weight:600; letter-spacing:-.04em; line-height:1}
 .fd-full{font-size:.9rem; color:var(--dim); margin-top:4px}
 .fd-foot{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:26px; padding-top:14px; border-top:1px solid var(--border); font-size:.8rem; color:var(--faint-c)}
 .folder.empty-f .fd-name{color:var(--dim)}
@@ -259,7 +259,7 @@ article pre:hover .copy-btn{opacity:1}
   <header class="site"><div class="wrap">
     <a class="brand" id="brand" href="#" title="Volver al inicio">~/rootlog</a>
     <h1 class="site-title">rootlog<span class="cur">_</span></h1>
-    <p class="tagline">Registro de máquinas comprometidas en HTB, TryHackMe y VulnHub. Metodología, notas y lecciones de cada objetivo.</p>
+    <p class="tagline">Registro de máquinas comprometidas en HackTheBox, TryHackMe y VulnHub. Metodología, notas y lecciones de cada objetivo.</p>
     <div class="stats" id="stats"></div>
   </div></header>
   <main class="wrap">
@@ -1580,7 +1580,7 @@ const fdES=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||"")?s.slice(8,10)+"/"+s.slice(5,7)+"
 const dLabel=d=>DIFF_LABEL[norm(d)]||d, DIFF_KEY={easy:"facil",medium:"media",hard:"dificil",insane:"insane"};
 function buildStats(){
   const d=WRITEUPS, rooted=d.filter(x=>x.status==="rooted").length, by=p=>d.filter(x=>x.platform===p).length;
-  const s=[["total",d.length,false],["rooteadas",rooted,true],["HTB",by("HTB"),false],["THM",by("THM"),false],["VulnHub",by("VulnHub"),false]];
+  const s=[["total",d.length,false],["rooteadas",rooted,true],["HackTheBox",by("HTB"),false],["TryHackMe",by("THM"),false],["VulnHub",by("VulnHub"),false]];
   document.getElementById("stats").innerHTML=s.map(r=>'<div class="stat"><div class="n '+(r[2]?"gold":"")+'">'+String(r[1])+'</div><div class="l">'+r[0]+'</div></div>').join("");
 }
 function uniq(k){ return [...new Set(WRITEUPS.map(x=>x[k]).filter(Boolean))]; }
@@ -1613,14 +1613,15 @@ function card(w){
     +'<div class="chain">'+steps+'</div><div class="chain-lbl">'+lbls+'</div>'
     +'<div class="tags">'+tags+'</div></a>';
 }
-const PLATS=[["HTB","Hack The Box"],["THM","TryHackMe"],["VulnHub","VulnHub"]];
+const PLATS=[["HTB","HackTheBox"],["THM","TryHackMe"],["VulnHub","VulnHub"]];
 const FOLDER={}; PLATS.forEach(p=>FOLDER[p[0].toLowerCase()]=p[0]);
+function pName(p){const x=PLATS.find(q=>q[0]===p);return x?x[1]:p;}
 const plural=(n,w)=>n+" "+w+(n!==1?"s":"");
 function folders(){
   return '<div class="folders">'+PLATS.map(p=>{const l=WRITEUPS.filter(w=>w.platform===p[0]),r=l.filter(w=>w.status==="rooted").length;
     return '<a class="folder'+(l.length?"":" empty-f")+'" href="#'+p[0].toLowerCase()+'" style="--pc:'+EDGE[p[0]]+'">'
       +'<div class="fd-top"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4.38a1.5 1.5 0 0 1 1.06.44L11.5 8h8A1.5 1.5 0 0 1 21 9.5v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/></svg><span class="fd-n">'+plural(l.length,"máquina")+'</span></div>'
-      +'<div class="fd-name">'+p[0]+'</div><div class="fd-full">'+p[1]+'</div>'
+      +'<div class="fd-name">'+p[1]+'</div>'
       +'<div class="fd-foot">'+(l.length?'<span>'+plural(r,"rooteada")+'</span><span>Última: '+esc(l[0].title)+'</span>':'<span>Vacía por ahora</span>')+'</div></a>';}).join("")+'</div>';
 }
 function renderGrid(){
@@ -1628,11 +1629,11 @@ function renderGrid(){
   document.body.classList.toggle("at-root",atRoot);
   const list=WRITEUPS.filter(matches),grid=document.getElementById("grid"),cnt=document.getElementById("count");
   if(window.renderGraph)window.renderGraph(list);
-  if(STATE.plat) cnt.innerHTML='<a href="#">Carpetas</a><span class="sep">/</span><b>'+STATE.plat+'</b><span class="sep">·</span>'+plural(list.length,"máquina");
+  if(STATE.plat) cnt.innerHTML='<a href="#">Carpetas</a><span class="sep">/</span><b>'+pName(STATE.plat)+'</b><span class="sep">·</span>'+plural(list.length,"máquina");
   else if(STATE.q) cnt.textContent=plural(list.length,"resultado")+" en todas las carpetas";
   else cnt.textContent=PLATS.length+" carpetas · "+plural(WRITEUPS.length,"máquina");
   if(atRoot){grid.innerHTML=folders();return;}
-  if(!list.length){const vac=STATE.plat&&!WRITEUPS.some(w=>w.platform===STATE.plat);grid.innerHTML='<div class="empty"><h3>'+(vac?"Carpeta vacía":"Sin resultados")+'</h3><p>'+(vac?"Todavía no hay máquinas de "+STATE.plat+".":"Ninguna máquina coincide con el filtro.")+'</p></div>';return;}
+  if(!list.length){const vac=STATE.plat&&!WRITEUPS.some(w=>w.platform===STATE.plat);grid.innerHTML='<div class="empty"><h3>'+(vac?"Carpeta vacía":"Sin resultados")+'</h3><p>'+(vac?"Todavía no hay máquinas de "+pName(STATE.plat)+".":"Ninguna máquina coincide con el filtro.")+'</p></div>';return;}
   if(SORT==="diff"){const g={},ord=REV?DIFF_ORDER:DIFF_ORDER.slice().reverse();
     list.forEach(w=>{const k=DIFF_ORDER.includes(norm(w.difficulty))?norm(w.difficulty):"otra";(g[k]=g[k]||[]).push(w);});
     const isLk=w=>!!(w.locked||(w.active&&w.unlock&&new Date(w.unlock).getTime()>Date.now()));
@@ -1660,7 +1661,7 @@ function renderWriteup(slug){
   catch(e){ body='<p style="color:var(--hard)">Error al renderizar: '+esc(String(e&&e.message||e))+'</p>'; }
   doc.innerHTML='<header class="doc"><div class="eyebrow"><a class="wu-plat '+m.platform+'" href="#'+m.platform.toLowerCase()+'">'+m.platform+'</a><span class="wu-status '+m.status+'">'+(STATUS_LABEL[m.status]||m.status)+'</span></div>'
     +'<h1 class="title">'+esc(m.title)+'</h1><div class="metabar">'+cells+'</div><div class="wu-chain">'+chain+'</div></header>'
-    +'<article>'+body+'</article><div class="wu-tags">'+tags+'</div><footer class="doc"><a href="#'+m.platform.toLowerCase()+'">← volver a '+m.platform+'</a></footer>';
+    +'<article>'+body+'</article><div class="wu-tags">'+tags+'</div><footer class="doc"><a href="#'+m.platform.toLowerCase()+'">← volver a '+pName(m.platform)+'</a></footer>';
   doc.querySelectorAll("pre code").forEach(b=>{const cls=[...b.classList].find(c=>c.startsWith("language-"));const lang=cls?cls.replace("language-",""):"sh";b.closest("pre").setAttribute("data-lang",lang);try{hljs.highlightElement(b);}catch(e){}});
   doc.querySelectorAll("article img").forEach(img=>img.addEventListener("click",()=>openLightbox(img.currentSrc||img.src)));
   doc.querySelectorAll("article img").forEach(img=>img.addEventListener("error",function(){const name=decodeURIComponent((img.getAttribute("src")||"").split("/").pop());const ph=document.createElement("div");ph.className="img-missing";ph.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="8.5" cy="8.5" r="1.5"/></svg><div><strong>Imagen no encontrada</strong><code>'+name+'</code></div>';img.replaceWith(ph);}));
@@ -1673,7 +1674,7 @@ function router(){
     if(f!==STATE.plat){SORT="diff";REV=false;if(typeof paintSorts==="function")paintSorts();}
     STATE.plat=f;renderGrid();
     document.getElementById("brand").textContent="~/rootlog"+(f?"/"+f.toLowerCase():"");
-    wuView.hidden=true;listView.hidden=false;document.title=f?f+" — rootlog":"rootlog — writeups";window.scrollTo(0,0);}
+    wuView.hidden=true;listView.hidden=false;document.title=f?pName(f)+" — rootlog":"rootlog — writeups";window.scrollTo(0,0);}
 }
 function openLightbox(src){ if(!src)return; document.getElementById("lightbox-img").src=src; document.getElementById("lightbox").hidden=false; }
 function closeLightbox(){ document.getElementById("lightbox").hidden=true; document.getElementById("lightbox-img").src=""; }
@@ -1815,15 +1816,15 @@ ${i}
       var st=kv[0]==="Dificultad"?' style="color:'+(DIFFCOLOR[norm(w.difficulty)]||"var(--text)")+'"':"";
       return '<div class="mcell"><div class="k">'+kv[0]+'</div><div class="v"'+st+'>'+esc(kv[1])+'</div></div>';
     }).join("");
-    var who=({HTB:"Hack The Box",THM:"TryHackMe"})[w.platform]||w.platform;
+    var who=({HTB:"HackTheBox",THM:"TryHackMe"})[w.platform]||w.platform;
     doc.innerHTML='<header class="doc"><div class="eyebrow"><a class="wu-plat '+w.platform+'" href="#'+pl+'">'+w.platform+'</a><span class="lk-badge">'+LOCK_SVG+'activa</span></div>'
       +'<h1 class="title">'+esc(w.title)+'</h1><div class="metabar">'+cells+'</div></header>'
       +'<div class="lockbox"><div class="lb-ico">'+LOCK_SVG+'</div><div class="lb-k">Máquina activa · writeup cifrado</div>'
       +'<div class="lb-cd cd" data-at="'+at+'"'+(preview?'':' data-slug="'+esc(w.slug)+'"')+'>'+(ms>0?fmt(ms):'desbloqueando…')+'</div>'
       +'<p class="lb-s">Disponible el <b>'+fdate(at)+'</b>.</p></div>'
       +(preview?'<div class="lk-preview"><span>Vista previa: así lo ve la gente en tu web.</span><button type="button" class="btn tool" id="lk-back">Volver a mi vista</button></div>':'')
-      +'<footer class="doc"><a href="#'+pl+'">← volver a '+w.platform+'</a></footer>';
-    var bk=document.getElementById("wu-back"); if(bk){ bk.href="#"+pl; bk.textContent="← "+w.platform; }
+      +'<footer class="doc"><a href="#'+pl+'">← volver a '+pName(w.platform)+'</a></footer>';
+    var bk=document.getElementById("wu-back"); if(bk){ bk.href="#"+pl; bk.textContent="← "+pName(w.platform); }
     var acts=document.getElementById("wu-actions"); if(acts) acts.innerHTML="";
     var toc=document.getElementById("toc"); if(toc) toc.remove();
     if(preview){ document.getElementById("lk-back").addEventListener("click",function(){ renderWriteup(w.slug); if(window.__rootlogEnhance) window.__rootlogEnhance(); window.scrollTo(0,0); }); }
@@ -1897,7 +1898,7 @@ ${i}
 /* Insignia de perfil de cada plataforma, dentro de su carpeta. Se usa el iframe oficial directamente (sin su script). */
 (function(){
   var PROFILES={
-    HTB:{name:"Hack The Box", url:"https://profile.hackthebox.com/profile/019e9e7d-fc2d-700f-b9e4-794b6a43fd00", handle:"@Vesperinhoo", fullname:"Adria Llinares Arroyo", avatar:"https://htb-sso-prod-public-storage.s3.eu-central-1.amazonaws.com/users/d0b263f2-0b7b-49e9-bd91-4b6809799153-avatar.png"},
+    HTB:{name:"HackTheBox", url:"https://profile.hackthebox.com/profile/019e9e7d-fc2d-700f-b9e4-794b6a43fd00", handle:"@Vesperinhoo", fullname:"Adria Llinares Arroyo", avatar:"https://htb-sso-prod-public-storage.s3.eu-central-1.amazonaws.com/users/d0b263f2-0b7b-49e9-bd91-4b6809799153-avatar.png"},
     THM:{name:"TryHackMe", url:"https://tryhackme.com/p/adria.llinares", handle:"adria.llinares", fullname:"Adria Llinares Arroyo", avatar:"https://cdn-images.tryhackme.com/user-avatars/68d563b894172bc87b1b9bf4-1762188453338"}
   };
   function box(){
@@ -2060,7 +2061,7 @@ ${i}
     hs.forEach(function(h,i){ if(!h.id) h.id="sec"+i; });
     var nav=document.createElement("nav"); nav.className="toc"; nav.id="toc";
     var cw=WRITEUPS.find(function(x){ return x.slug===decodeURIComponent(location.hash.slice(1)); });
-    nav.innerHTML='<a class="toc-back" href="#'+(cw?cw.platform.toLowerCase():"")+'">← volver a '+(cw?cw.platform:"rootlog")+'</a><div class="toc-h">Contenido</div>'+hs.map(function(h){
+    nav.innerHTML='<a class="toc-back" href="#'+(cw?cw.platform.toLowerCase():"")+'">← volver a '+(cw?pName(cw.platform):"rootlog")+'</a><div class="toc-h">Contenido</div>'+hs.map(function(h){
       return '<a data-t="'+h.id+'" class="'+(h.tagName==="H3"?"lvl3":"")+'">'+h.textContent+'</a>';
     }).join("");
     document.body.appendChild(nav);
